@@ -6,6 +6,13 @@
   <name>fanglianAI</name>
   <version>1.10</version>
   <description>A Bukkit plugin for Paper server</description>
+  <url>https://github.com/xcs324/fanglianAI</url>
+  <developers>
+    <developer>
+      <id>xcs324</id>
+      <name>xcs324</name>
+    </developer>
+  </developers>
   <build>
     <resources>
       <resource>

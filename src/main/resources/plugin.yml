@@ -5,7 +5,7 @@ api-version: 1.20
 author: xcs324
 commands:
   flai:
-    description: Main command for fanglianAI plugin
+    description:Main command for fanglianAI plugin
     usage: /flai <问题|clear|token|private|list|reload>
     permission: fanglianai.use
     aliases: [ai]
