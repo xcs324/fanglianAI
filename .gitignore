@@ -1,0 +1,20 @@
+# Maven
+target/
+!.gitkeep
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Plugin config (contains API key)
+# Uncomment if you don't want to track config
+# src/main/resources/config.yml

@@ -1,0 +1,41 @@
+name: fanglianAI
+version: 1.10
+main: com.fanglian.fanglianAI.FanglianAI
+api-version: 1.20
+author: xcs324
+commands:
+  flai:
+    description: Main command for fanglianAI plugin
+    usage: /flai <问题|clear|token|private|list|reload>
+    permission: fanglianai.use
+    aliases: [ai]
+
+permissions:
+  fanglianai.use:
+    description: 允许使用基础 AI 对话功能
+    default: true
+  fanglianai.token:
+    description: 允许查询 token 使用量
+    default: true
+  fanglianai.private:
+    description: 允许切换私聊模式
+    default: true
+  fanglianai.preset:
+    description: 允许使用预设指令
+    default: true
+  fanglianai.reload:
+    description: 允许重载配置文件
+    default: op
+  fanglianai.bypass.limit:
+    description: 绕过 token 使用限制
+    default: op
+  fanglianai.bypass.cooldown:
+    description: 绕过冷却时间限制
+    default: op
+  fanglianai.admin:
+    description: 管理员权限
+    default: op
+    children:
+      fanglianai.reload: true
+      fanglianai.bypass.limit: true
+      fanglianai.bypass.cooldown: true
