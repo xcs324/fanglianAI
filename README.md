@@ -109,7 +109,7 @@ mvn clean package
 
 ## 许可证
 
-MIT License
+本项目采用 [MIT License](LICENSE) 开源协议。
 
 ## 作者
 

@@ -1,5 +1,5 @@
 name: fanglianAI
-version: 1.10
+version: 1.11
 main: com.fanglian.fanglianAI.FanglianAI
 api-version: 1.20
 author: xcs324
