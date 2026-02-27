@@ -17,7 +17,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class FlaiCommand implements CommandExecutor, TabCompleter {
 
-    private final OkHttpClient httpClient = new OkHttpClient();
+    private final OkHttpClient httpClient = new OkHttpClient.Builder()
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
+        .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .build();
 
     // 普通模式的对话历史 (使用 UUID 作为键，支持玩家和控制台)
     private final Map<String, List<Map<String, String>>> conversationHistory = new HashMap<>();
@@ -33,9 +37,6 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
 
     // 存储每个用户的上次使用时间 (用于冷却时间检查)
     private final Map<String, Long> lastUseTime = new HashMap<>();
-
-    // 存储每个用户选择的模型
-    private final Map<String, String> userSelectedModel = new HashMap<>();
 
     /**
      * 重置每日 Token 使用量 (由主类定时任务调用)
@@ -66,10 +67,6 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
                     return handleReload(sender);
                 case "mc":
                     return handleMcMode(sender, args);
-                case "model":
-                    return handleModel(sender, args);
-                case "models":
-                    return handleModels(sender);
                 case "translate":
                     return handleTranslate(sender, args);
                 case "help":
@@ -94,7 +91,7 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
         // 构建问题 (普通模式)
         String question = String.join(" ", args);
 
-        // 记录使用时间 (用于冷却时间检查)
+        // 记录使用时间 (用于冷却时间检查，在检查通过后立即更新)
         lastUseTime.put(userId, System.currentTimeMillis());
 
         // 发送思考消息
@@ -231,7 +228,7 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
         // 构建问题
         String question = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
-        // 记录使用时间
+        // 记录使用时间 (用于冷却时间检查，在检查通过后立即更新)
         lastUseTime.put(userId, System.currentTimeMillis());
 
         // 发送思考消息
@@ -280,7 +277,7 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
         }
         String question = prompt.replace("{input}", content);
 
-        // 记录使用时间
+        // 记录使用时间 (用于冷却时间检查，在检查通过后立即更新)
         lastUseTime.put(userId, System.currentTimeMillis());
 
         // 发送思考消息
@@ -400,56 +397,6 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * 处理模型切换命令
-     */
-    private boolean handleModel(CommandSender sender, String[] args) {
-        FanglianAI plugin = FanglianAI.getInstance();
-
-        if (!sender.hasPermission("fanglianai.use")) {
-            sender.sendMessage(plugin.getMessage("no-permission"));
-            return true;
-        }
-
-        String userId = getUserId(sender);
-
-        if (args.length == 1) {
-            // 显示当前模型
-            String currentModel = userSelectedModel.getOrDefault(userId, plugin.getApiModel());
-            sender.sendMessage(plugin.getMessage("model-current", "model", currentModel));
-            return true;
-        }
-
-        // 切换模型
-        String newModel = args[1];
-        List<String> availableModels = plugin.getAvailableModels();
-
-        if (!availableModels.contains(newModel)) {
-            sender.sendMessage(plugin.getMessage("model-not-found", "model", newModel));
-            return true;
-        }
-
-        userSelectedModel.put(userId, newModel);
-        sender.sendMessage(plugin.getMessage("model-changed", "model", newModel));
-        return true;
-    }
-
-    /**
-     * 处理模型列表命令
-     */
-    private boolean handleModels(CommandSender sender) {
-        FanglianAI plugin = FanglianAI.getInstance();
-
-        if (!sender.hasPermission("fanglianai.use")) {
-            sender.sendMessage(plugin.getMessage("no-permission"));
-            return true;
-        }
-
-        List<String> models = plugin.getAvailableModels();
-        sender.sendMessage(plugin.getMessage("model-list", "models", String.join("§e, §a", models)));
-        return true;
-    }
-
-    /**
      * 处理帮助命令
      */
     private boolean handleHelp(CommandSender sender) {
@@ -460,8 +407,6 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(plugin.getMessage("help-clear"));
         sender.sendMessage(plugin.getMessage("help-token"));
         sender.sendMessage(plugin.getMessage("help-private"));
-        sender.sendMessage(plugin.getMessage("help-model"));
-        sender.sendMessage(plugin.getMessage("help-models"));
         sender.sendMessage(plugin.getMessage("help-list"));
         sender.sendMessage(plugin.getMessage("help-mc"));
         sender.sendMessage(plugin.getMessage("help-translate"));
@@ -541,9 +486,8 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
 
         // 构建 JSON 请求体
         JsonObject requestBody = new JsonObject();
-        // 使用用户选择的模型，如果没选择则使用默认模型
-        String modelToUse = userSelectedModel.getOrDefault(userId, plugin.getApiModel());
-        requestBody.addProperty("model", modelToUse);
+        // 使用固定模型
+        requestBody.addProperty("model", plugin.getApiModel());
 
         JsonArray messagesArray = new JsonArray();
         Gson gson = new Gson();
@@ -552,8 +496,11 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
         }
         requestBody.add("messages", messagesArray);
 
+        // 使用UTF-8编码序列化JSON
+        String jsonBody = gson.toJson(requestBody);
+
         RequestBody body = RequestBody.create(
-            requestBody.toString(),
+            jsonBody,
             MediaType.parse("application/json; charset=utf-8")
         );
 
@@ -622,24 +569,13 @@ public class FlaiCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 1) {
             // 第一个参数：子命令
-            List<String> subCommands = Arrays.asList("clear", "token", "private", "model", "models", "list", "reload", "help", "mc", "translate");
+            List<String> subCommands = Arrays.asList("clear", "token", "private", "list", "reload", "help", "mc", "translate");
             String input = args[0].toLowerCase();
 
             // 添加匹配的子命令
             for (String subCmd : subCommands) {
                 if (subCmd.startsWith(input)) {
                     completions.add(subCmd);
-                }
-            }
-        } else if (args.length == 2) {
-            String input = args[1].toLowerCase();
-
-            if (args[0].equalsIgnoreCase("model")) {
-                // /flai model <模型名>
-                for (String model : plugin.getAvailableModels()) {
-                    if (model.toLowerCase().startsWith(input)) {
-                        completions.add(model);
-                    }
                 }
             }
         }

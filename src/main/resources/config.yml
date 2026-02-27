@@ -8,15 +8,6 @@ api:
   url: "https://apis.iflow.cn/v1/chat/completions"
   # 使用的模型
   model: "deepseek-v3.2"
-  # 可用模型列表 (玩家可切换的模型)
-  available-models:
-    - "deepseek-v3.2"
-    - "iflow-rome-30ba3b"
-    - "qwen3-coder-plus"
-    - "qwen3-max"
-    - "qwen3-vl-plus"
-    - "kimi-k2"
-    - "deepseek-r1"
 
 # 上下文配置
 context:
@@ -76,17 +67,11 @@ messages:
   no-permission: "§c你没有权限执行此操作。"
   console-not-allowed: "§c控制台无法使用此功能。"
   cooldown-wait: "§c请等待 {seconds} 秒后再试。"
-  model-changed: "§a已切换到模型: §e{model}"
-  model-current: "§e当前模型: §a{model}"
-  model-list: "§e可用模型: §a{models}"
-  model-not-found: "§c模型 '{model}' 不可用，使用 /flai models 查看可用模型。"
   help-header: "§e========== §b[fanglianAI 帮助] §e=========="
   help-usage: "§e/flai <问题> §7- 普通模式，通用问答"
   help-clear: "§e/flai clear §7- 清除所有对话历史"
   help-token: "§e/flai token §7- 查看 token 使用量"
   help-private: "§e/flai private §7- 切换私聊/公共模式"
-  help-model: "§e/flai model [模型名] §7- 查看/切换模型"
-  help-models: "§e/flai models §7- 查看可用模型列表"
   help-list: "§e/flai list §7- 查看可用命令"
   help-mc: "§e/flai mc <问题> §7- MC专家模式，专注Minecraft问题"
   help-translate: "§e/flai translate <内容> §7- 中英互译"

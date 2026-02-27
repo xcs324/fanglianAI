@@ -4,7 +4,7 @@
   <groupId>com.fanglian</groupId>
   <artifactId>fanglianAI</artifactId>
   <name>fanglianAI</name>
-  <version>1.10</version>
+  <version>1.12</version>
   <description>A Bukkit plugin for Paper server</description>
   <url>https://github.com/xcs324/fanglianAI</url>
   <developers>

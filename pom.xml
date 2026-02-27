@@ -6,7 +6,7 @@
 
     <groupId>com.fanglian</groupId>
     <artifactId>fanglianAI</artifactId>
-    <version>1.10</version>
+    <version>1.12</version>
     <packaging>jar</packaging>
 
     <name>fanglianAI</name>

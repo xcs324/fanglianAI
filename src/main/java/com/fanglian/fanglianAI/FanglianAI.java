@@ -27,7 +27,6 @@ public class FanglianAI extends JavaPlugin {
     private static final String CFG_API_KEY = "api.key";
     private static final String CFG_API_URL = "api.url";
     private static final String CFG_API_MODEL = "api.model";
-    private static final String CFG_API_MODELS = "api.available-models";
     private static final String CFG_CONTEXT_ENABLED = "context.enabled";
     private static final String CFG_CONTEXT_MAX = "context.max-messages";
     private static final String CFG_TOKEN_ENABLED = "token-limit.enabled";
@@ -107,10 +106,6 @@ public class FanglianAI extends JavaPlugin {
 
     public String getApiModel() {
         return getConfig().getString(CFG_API_MODEL, "deepseek-v3.2");
-    }
-
-    public List<String> getAvailableModels() {
-        return getConfig().getStringList(CFG_API_MODELS);
     }
 
     // ==================== 上下文配置 ====================
